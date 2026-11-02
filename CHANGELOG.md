@@ -10,6 +10,10 @@ do meio (0.**3**.0).
 
 ## [Não lançado]
 
+### Adicionado
+
+- **Monitoramento de agentes Hermes (HABBLAUD_HERMES=1).** Leitura local e somente leitura de perfis, sessões, mensagens e delegações assíncronas do Hermes, com status, atividade e subagentes no escritório. Desligado por padrão.
+
 ## [1.0.3] - 2026-10-16
 
 ### Corrigido

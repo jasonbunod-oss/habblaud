@@ -37,6 +37,8 @@ import { ClaudeWatcher } from './sources/watcher';
 import { discoverCodexDirs } from './sources/codex/accounts';
 import { CodexHistory } from './sources/codex/history';
 import { CodexSource } from './sources/codex/source';
+import { HermesSource } from './sources/hermes/source';
+import { HermesHistoryProvider } from './sources/hermes/history';
 import { createBuildReader, readBuildInfo } from './build';
 import { UpdateChecker } from './updates/checker';
 import { getLocale, tr } from '../shared/i18n';
@@ -196,6 +198,17 @@ const history = config.terminal
   ? new HistorySet([new SessionHistory({ accounts: () => accounts.entries(), openAgentOf: (acc, sid) => openMainAgent(office.list(), acc, sid) })])
   : undefined;
 if (history && codex) history.add(new CodexHistory({ accounts: () => accounts.entriesOf('codex'), openAgentOf: (acc, sid) => openMainAgent(office.list(), acc, sid) }));
+// Hermes monitoring (HABBLAUD_HERMES=1, default off): read-only, local-first.
+let hermes: HermesSource | undefined;
+try {
+  if (config.hermes?.enabled) {
+    hermes = new HermesSource({ office, dirs: config.hermes.dirs, apiUrl: config.hermes.apiUrl, logger: console });
+    agents.add(hermes);
+    if (history) history.add(new HermesHistoryProvider({ dirs: config.hermes.dirs }));
+  }
+} catch (err) {
+  console.warn('[hermes] failed to register source:', String(err));
+}
 // Entregas: o fim de cada pedido, lido dos transcripts do histórico (mesma trava do terminal). Os arquivos entregues
 // são lidos aqui (Node, ou pasta de conta montada no Docker) ou pelo auxiliar do host.
 const deliveries = history

@@ -52,6 +52,8 @@ export interface ServerConfig {
   updateCheck: boolean;
   /** Observa as sessões do Codex (sources/codex/); HABBLAUD_CODEX=0 desliga. */
   codex: boolean;
+  /** Configuração do monitoramento Hermes (sources/hermes/); desligado por padrão. */
+  hermes: HermesConfig;
   /** Segunda porta, com login, para o celular na rede local (http/remote.ts); ausente = desligada. */
   remote?: RemoteConfig;
   /** Por que o acesso remoto ficou desligado quando as variáveis estão incompletas. */
@@ -78,6 +80,15 @@ export interface WorldConfig {
   dev: boolean;
   /** Por que HABBLAUD_WORLD_URL foi recusada (vai para o log ao iniciar). */
   warning?: string;
+}
+
+export interface HermesConfig {
+  /** Pastas de dados do Hermes observadas (uma por instalação/profile raiz). */
+  dirs: string[];
+  /** URL HTTP(S) do gateway Hermes para L3 (opcional; ausente = só L1/L2). */
+  apiUrl?: string;
+  /** Observa as sessões do Hermes (sources/hermes/); HABBLAUD_HERMES=0 desliga (default off). */
+  enabled: boolean;
 }
 
 export function isTruthy(v: string | undefined): boolean {
@@ -249,6 +260,22 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env, argv: string[] 
     repo: pkg.repo,
     updateCheck: !env.HABBLAUD_UPDATE_CHECK?.trim() || isTruthy(env.HABBLAUD_UPDATE_CHECK),
     codex: !env.HABBLAUD_CODEX?.trim() || isTruthy(env.HABBLAUD_CODEX),
+    hermes: {
+      dirs: (env.HABBLAUD_HERMES_DIRS?.trim()
+        ? env.HABBLAUD_HERMES_DIRS.split(',').map((s) => s.trim()).filter(Boolean)
+        : [(() => {
+            const candidates = [
+              env.HERMES_HOME?.trim(),
+              join(home, 'AppData', 'Local', 'hermes'),
+              join(home, '.hermes'),
+              inDocker ? '/data/hermes' : undefined,
+              inDocker ? '/data' : undefined,
+            ].filter((v): v is string => !!v && v.length > 0);
+            return candidates.find((d) => existsSync(d)) || candidates[0] || join(home, '.hermes');
+          })()]),
+      apiUrl: env.HABBLAUD_HERMES_API_URL?.trim() || undefined,
+      enabled: isTruthy(env.HABBLAUD_HERMES),
+    },
     remote: remote.config,
     remoteWarning: remote.warning,
     world: parseWorldConfig(env, argv),
