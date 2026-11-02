@@ -35,8 +35,6 @@ describe('hermes map', () => {
     const r = hermesActivityFromMessage({ role: 'user', content: 'hello world' });
     expect(r.kind).toBe('prompt');
     expect(r.text).toContain('hello');
-    expect(Array.isArray(r)).toBe(true);
-    expect(r[0]).toBe('prompt');
   });
 
   it('activity from assistant tool call', () => {

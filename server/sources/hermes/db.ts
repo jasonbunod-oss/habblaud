@@ -86,7 +86,7 @@ export function listSessions(...args: any[]): Record<string, unknown>[] {
       ? 'WHERE (last_activity_at IS NULL OR last_activity_at >= ?) OR (last_activity_at IS NULL AND started_at >= ?)'
       : '';
     const params = sinceDb != null ? [sinceDb, sinceDb] : [];
-    const sql = `SELECT * FROM sessions ${where} ORDER BY started_at DESC`;
+    const sql = `SELECT * FROM sessions ${where} ORDER BY started_at DESC LIMIT 500`;
     return rowsOf<Record<string, unknown>>(db, sql, params);
   } catch (err) {
     console.warn('[hermes] listSessions failed:', String(err));
@@ -122,7 +122,7 @@ export function listAsyncDelegations(...args: any[]): Record<string, unknown>[] 
     const sinceDb = normalizeSince(since);
     const where = sinceDb != null ? 'WHERE updated_at IS NULL OR updated_at >= ? OR dispatched_at >= ?' : '';
     const params = sinceDb != null ? [sinceDb, sinceDb] : [];
-    const sql = `SELECT * FROM async_delegations ${where} ORDER BY updated_at DESC`;
+    const sql = `SELECT * FROM async_delegations ${where} ORDER BY updated_at DESC LIMIT 200`;
     return rowsOf<Record<string, unknown>>(db, sql, params);
   } catch (err) {
     console.warn('[hermes] listAsyncDelegations failed:', String(err));

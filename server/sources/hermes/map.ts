@@ -140,7 +140,7 @@ function truncate(s: string, n: number): string {
   return redacted.slice(0, Math.max(0, n - 1)) + '…';
 }
 
-export function hermesActivityFromMessage(msg: any): { kind: ActivityKind | null; text: string } & [ActivityKind | null, string] {
+export function hermesActivityFromMessage(msg: any): { kind: ActivityKind | null; text: string } {
   const role = lower(msg?.role);
   const toolName = str(msg?.tool_name ?? msg?.toolName ?? msg?.name).trim();
   const content = contentText(msg?.content);
@@ -198,11 +198,8 @@ export function hermesActivityFromMessage(msg: any): { kind: ActivityKind | null
   return res;
 }
 
-function makeResult(kind: ActivityKind | null, text: string): { kind: ActivityKind | null; text: string } & [ActivityKind | null, string] {
-  const arr: any = [kind, text];
-  arr.kind = kind;
-  arr.text = text;
-  return arr as any;
+function makeResult(kind: ActivityKind | null, text: string): { kind: ActivityKind | null; text: string } {
+  return { kind, text };
 }
 
 export function hermesRoomKey(session: any): string {
