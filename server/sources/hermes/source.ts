@@ -4,7 +4,6 @@ import { listSessions, listMessages, listAsyncDelegations } from './db';
 import { hermesStatus, hermesActivityFromMessage, hermesRoomKey, hermesAgentId } from './map';
 import { Dedup } from './dedup';
 import { HermesHistoryProvider } from './history';
-import { HermesLive } from './live';
 import { tr } from '../../../shared/i18n';
 import type { AgentSource, HistoryProvider } from '../source';
 import type { Office } from '../../model/office';
@@ -34,7 +33,6 @@ export class HermesSource implements AgentSource {
   private interval: any = null;
   private knownSessions = new Set<string>();
   private seenMessages = new Dedup(50000, 10 * 60 * 1000);
-  private live?: HermesLive;
   private started = false;
 
   constructor(opts: HermesSourceOptions) {
@@ -110,8 +108,6 @@ export class HermesSource implements AgentSource {
     this.office.beginBoot?.();
     try {
       this.profiles = await this.discoverProfiles();
-      this.live = new HermesLive({ apiUrl: this.apiUrl, logger: this.logger });
-      await this.live.start();
       await this.syncOnce(true);
       this.interval = setTimer(() => {
         this.syncOnce(false).catch((err) => this.logger.warn('[hermes] sync failed:', String(err)));
@@ -128,7 +124,6 @@ export class HermesSource implements AgentSource {
       clearTimer(this.interval);
       this.interval = null;
     }
-    try { this.live?.stop(); } catch { /* ignore */ }
   }
 
   sources(): any[] {

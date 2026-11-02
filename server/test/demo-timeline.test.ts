@@ -42,7 +42,7 @@ describe('demo-timeline', () => {
     expect(sessionsAt(-1, 6)).toBe(sessionsAt(0, 6));
   });
 
-  it('grava um dia fictício só com agentes marcados como demonstração', { timeout: 120_000 }, () => {
+  it('grava um dia fictício só com agentes marcados como demonstração', () => {
     const opts = { date: '2026-10-07', startMin: 9 * 60, hours: 3, sessions: 4, pace: 0.5, seed: 7, dataDir: tmp.dir, force: false };
     const r = generateDemoTimeline(opts);
     const file = join(tmp.dir, 'timeline', '2026-10-07.jsonl');
@@ -77,5 +77,5 @@ describe('demo-timeline', () => {
     const again = generateDemoTimeline({ ...opts, force: true });
     expect(readFileSync(again.files[0], 'utf8')).toBe(readFileSync(file, 'utf8'));
     // Duas gravações de 3 h simuladas, uma linha por vez: no Windows passa dos 5 s padrão.
-  }, 30_000);
+  }, 120_000);
 });

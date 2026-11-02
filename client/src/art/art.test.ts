@@ -574,7 +574,7 @@ describe('legibilidade das mesas, sofá e olhos', () => {
 
 describe('pisos e paredes', () => {
   const floors: FloorKind[] = ['carpet', 'wood', 'tile_check', 'tile_white', 'concrete', 'marble', 'grass', 'sidewalk', 'street'];
-  it.skipIf(process.platform === 'win32')('blocos de piso são opacos e determinísticos', { retry: 2 }, () => {
+  it.skipIf((globalThis as any).process?.platform === 'win32')('blocos de piso são opacos e determinísticos', { retry: 2 }, () => {
     for (const k of floors) {
       const a = floorChunk(k, 2, -1, { seed: 3, tint: '#c9d1dc', tint2: '#bdc6d3' });
       expect(a.countOpaque(), k).toBe(CHUNK_PX * CHUNK_PX);
