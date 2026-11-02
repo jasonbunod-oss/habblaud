@@ -12,17 +12,19 @@ function session(p: Partial<RecentSession> & Pick<RecentSession, 'sessionId' | '
 describe('sessões do Codex no histórico', () => {
   it('parseRecentSessions guarda o provider só quando é o Codex; a busca acha "codex"', () => {
     const list = parseRecentSessions({
-      sessions: [
-        { account: '.codex', provider: 'codex', sessionId: 'x', projectDir: '/p', lastAt: 2, size: 1, open: false },
-        { account: '.claude', provider: 'claude', sessionId: 'c', projectDir: '-p', lastAt: 1, size: 1, open: false },
-        { account: '.claude', provider: 'outro', sessionId: 'd', projectDir: '-p', lastAt: 0, size: 1, open: false },
-      ],
-    });
-    expect(list.map((s) => [s.sessionId, s.provider])).toEqual([
-      ['x', 'codex'],
-      ['c', undefined],
-      ['d', undefined],
-    ]);
+          sessions: [
+            { account: '.codex', provider: 'codex', sessionId: 'x', projectDir: '/p', lastAt: 2, size: 1, open: false },
+            { account: '.hermes', provider: 'hermes', sessionId: 'h', projectDir: '/p', lastAt: 1.5, size: 1, open: false },
+            { account: '.claude', provider: 'claude', sessionId: 'c', projectDir: '-p', lastAt: 1, size: 1, open: false },
+            { account: '.claude', provider: 'outro', sessionId: 'd', projectDir: '-p', lastAt: 0, size: 1, open: false },
+          ],
+        });
+        expect(list.map((s) => [s.sessionId, s.provider])).toEqual([
+          ['x', 'codex'],
+          ['h', 'hermes'],
+          ['c', undefined],
+          ['d', undefined],
+        ]);
     expect(filterSessions(list, 'codex').map((s) => s.sessionId)).toEqual(['x']);
   });
 });

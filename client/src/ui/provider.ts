@@ -19,6 +19,10 @@ export function isCodex(x: { provider?: Provider } | null | undefined): boolean 
   return x?.provider === 'codex';
 }
 
+export function isHermes(x: { provider?: Provider } | null | undefined): boolean {
+  return x?.provider === 'hermes';
+}
+
 /**
  * O id de conta tem cara de pasta do Codex (".codex", ".codex-trabalho", ".codex~2", "demo:.codex")? Só para quando a
  * conta já não está no snapshot (ex.: histórico, "Meu dia"): com a conta à mão, vale o `provider` dela.

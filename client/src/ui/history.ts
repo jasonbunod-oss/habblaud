@@ -10,7 +10,7 @@ import type { UiComponent, UiContext } from './context';
 import { h, iconButton, setAttr, setHidden, setText, setTitle } from './dom';
 import { calendarDayDiff, formatClock, formatDateTime, normalizeSearch, plural, shortPath } from './format';
 import { ICONS } from './icons';
-import { isCodex } from './provider';
+import { isCodex, isHermes } from './provider';
 import { sessionProjectName, TERMINAL_UNAVAILABLE_HINT, type TerminalControl } from './terminal';
 import { createAccountChip, updateAccountChip } from './widgets';
 import { intlLocale, tr } from '../../../shared/i18n';
@@ -50,6 +50,7 @@ export function parseRecentSessions(raw: unknown): RecentSession[] {
     const agentId = str(o.agentId);
     // Ausente = Claude Code (nunca grava 'claude').
     if (o.provider === 'codex') s.provider = 'codex';
+    if (o.provider === 'hermes') s.provider = 'hermes';
     if (project) s.project = project;
     if (title) s.title = title;
     if (firstAt !== undefined) s.firstAt = firstAt;
@@ -316,28 +317,36 @@ export class HistoryPopover implements UiComponent {
     updateAccountChip(chip, account, s.account, s.provider);
     const title = s.title?.trim() || tr('Sessão sem título');
     const project = sessionProjectName(s);
+    const hermes = isHermes(s);
     const live = s.open && !!s.agentId && !!this.ctx.agent(s.agentId);
     const codex = isCodex(s);
     const meta = h(
       'span',
       { class: 'ui-hist__meta' },
       codex ? h('span', { class: 'ui-prov ui-prov--xs', text: 'Codex' }) : null,
+      hermes ? h('span', { class: 'ui-prov ui-prov--xs', text: 'Hermes' }) : null,
       h('span', { class: 'ui-hist__project', text: project }),
       h('span', { class: 'ui-hist__time', text: formatClock(s.lastAt, false) }),
     );
     if (live) meta.append(h('span', { class: 'ui-hist__live', text: tr('aberta') }));
-    const btn = h('button', { class: `ui-hist__item${live ? ' is-live' : ''}`, type: 'button' }, chip, h('span', { class: 'ui-hist__text' }, h('span', { class: 'ui-hist__title', text: title }), meta));
+    const btn = h('button', { class: `ui-hist__item${live ? ' is-live' : ''}${hermes ? ' is-readonly' : ''}`, type: 'button' }, chip, h('span', { class: 'ui-hist__text' }, h('span', { class: 'ui-hist__title', text: title }), meta));
     btn.dataset.session = `${s.account}:${s.sessionId}`;
-    const when = s.firstAt !== undefined && calendarDayDiff(s.firstAt, s.lastAt) !== 0 ? `${formatDateTime(s.firstAt)} → ${formatDateTime(s.lastAt)}` : s.firstAt !== undefined ? `${formatDateTime(s.firstAt)} → ${formatClock(s.lastAt, false)}` : formatDateTime(s.lastAt);
-    setTitle(
-      btn,
-      [title, shortPath(s.project ?? s.projectDir), `${account?.name ?? s.account}${codex ? ' (Codex)' : ''} · ${when} · ${formatSize(s.size)}`, live ? tr('Ainda aberta: abre o terminal ao vivo do agente') : tr('Encerrada: abre a conversa no terminal')].join('\n'),
-    );
-    setAttr(btn, 'aria-label', `${title}, ${project}, ${account?.name ?? s.account}${codex ? ', Codex' : ''}, ${live ? tr('aberta') : tr('última atividade {0} às {1}', [dayLabel(s.lastAt, now).toLowerCase(), formatClock(s.lastAt, false)])}`);
-    btn.addEventListener('click', () => {
-      this.hide();
-      this.terminal.openSession(s, this.button);
-    });
+    if (hermes) {
+      btn.disabled = true;
+      btn.setAttribute('aria-disabled', 'true');
+      setTitle(btn, tr('Sessão do Hermes: monitorada no escritório, sem terminal para abrir.'));
+    } else {
+      const when = s.firstAt !== undefined && calendarDayDiff(s.firstAt, s.lastAt) !== 0 ? `${formatDateTime(s.firstAt)} → ${formatDateTime(s.lastAt)}` : s.firstAt !== undefined ? `${formatDateTime(s.firstAt)} → ${formatClock(s.lastAt, false)}` : formatDateTime(s.lastAt);
+      setTitle(
+        btn,
+        [title, shortPath(s.project ?? s.projectDir), `${account?.name ?? s.account}${codex ? ' (Codex)' : ''} · ${when} · ${formatSize(s.size)}`, live ? tr('Ainda aberta: abre o terminal ao vivo do agente') : tr('Encerrada: abre a conversa no terminal')].join('\n'),
+      );
+      setAttr(btn, 'aria-label', `${title}, ${project}, ${account?.name ?? s.account}${codex ? ', Codex' : ''}, ${live ? tr('aberta') : tr('última atividade {0} às {1}', [dayLabel(s.lastAt, now).toLowerCase(), formatClock(s.lastAt, false)])}`);
+      btn.addEventListener('click', () => {
+        this.hide();
+        this.terminal.openSession(s, this.button);
+      });
+    }
     return btn;
   }
 
