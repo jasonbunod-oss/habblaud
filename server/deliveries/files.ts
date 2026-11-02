@@ -5,7 +5,7 @@
 // Node puro e sem dependências: também é importado pelo auxiliar do host (via tsx).
 import { existsSync, realpathSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
+import { posix as pathPosix } from 'node:path';
 import type { DeliveryAttachmentKind } from '../../shared/types';
 import { tr } from '../../shared/i18n';
 
@@ -102,9 +102,9 @@ export function insideKnownFolder(
   if (opts.roots.some((r) => r && path.startsWith(`${r.replace(/\/+$/, '')}/`))) return true;
   const exists = opts.exists ?? existsSync;
   // Mesma codificação de sources/watcher.ts (encodeCwd): todo caractere não alfanumérico vira "-".
-  for (let dir = dirname(path); dir.split('/').filter(Boolean).length >= 2; dir = dirname(dir)) {
+  for (let dir = pathPosix.dirname(path); dir.split('/').filter(Boolean).length >= 2; dir = pathPosix.dirname(dir)) {
     const encoded = dir.replace(/[^a-zA-Z0-9]/g, '-');
-    if (opts.accountDirs.some((acc) => exists(join(acc, 'projects', encoded)))) return true;
+    if (opts.accountDirs.some((acc) => exists(pathPosix.join(acc, 'projects', encoded)))) return true;
   }
   return false;
 }

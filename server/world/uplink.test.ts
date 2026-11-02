@@ -14,7 +14,7 @@ import { compileValidator } from '../../shared/world/schema-validator';
 import { worldSocketUrl } from '../config';
 import { setQuiet } from '../log';
 import { startFakeWorld, type FakeWorld } from '../test/fake-world';
-import { tempDir } from '../test/fixtures';
+import { HAS_POSIX_MODES, tempDir } from '../test/fixtures';
 import { WorldSettingsStore } from './settings';
 import { backoffDelay, BuildingUplink, type UplinkTimers, type UplinkTiming } from './uplink';
 
@@ -239,7 +239,7 @@ describe('BuildingUplink: conexão e remessas', () => {
   it('última remessa em disco: modo 600, sem token, relida só na mesma sessão', async () => {
     const h = await start();
     await waitFor(() => !!h.uplink.lastUplink()?.ack, 'ack');
-    expect(statSync(h.lastFile).mode & 0o777).toBe(0o600);
+    if (HAS_POSIX_MODES) expect(statSync(h.lastFile).mode & 0o777).toBe(0o600);
     const text = readFileSync(h.lastFile, 'utf8');
     expect(text).not.toContain(h.token);
     expect(JSON.parse(text).uplink).toEqual(h.uplink.lastUplink()!.uplink);

@@ -7,7 +7,7 @@ import { AccountsService } from '../accounts/service';
 import { setQuiet } from '../log';
 import { NameStore } from '../model/names';
 import { Office } from '../model/office';
-import { tempDir } from '../test/fixtures';
+import { HAS_POSIX_MODES, tempDir } from '../test/fixtures';
 import { createApiHandler, sendJson } from './app';
 import { createRequestGuard, isLoopbackHost } from './guard';
 import {
@@ -99,7 +99,7 @@ describe('RemoteSessions', () => {
     sessions.revoke('lixo');
     expect(sessions.verify(phone)).toBe(false);
     expect(sessions.verify(other)).toBe(true);
-    expect(statSync(file).mode & 0o777).toBe(0o600);
+    if (HAS_POSIX_MODES) expect(statSync(file).mode & 0o777).toBe(0o600);
     const restarted = new RemoteSessions(SECRET, CFG, () => now, file);
     expect(restarted.verify(phone)).toBe(false);
     expect(restarted.verify(other)).toBe(true);
@@ -110,7 +110,7 @@ describe('RemoteSessions', () => {
     const tmp = tempDir();
     const file = join(tmp.dir, 'data', 'remote-secret');
     const a = loadSecret(file);
-    expect(statSync(file).mode & 0o777).toBe(0o600);
+    if (HAS_POSIX_MODES) expect(statSync(file).mode & 0o777).toBe(0o600);
     expect(readFileSync(file, 'utf8')).toBe(a.toString('hex'));
     expect(loadSecret(file).equals(a)).toBe(true);
     tmp.cleanup();
