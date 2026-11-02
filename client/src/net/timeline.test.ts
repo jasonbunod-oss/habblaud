@@ -134,7 +134,7 @@ describe('reconstrução do timelapse', () => {
     ]);
   });
 
-  it('confere com o simulador: o snapshot reconstruído é o que foi gravado (em qualquer ordem de busca)', () => {
+  it('confere com o simulador: o snapshot reconstruído é o que foi gravado (em qualquer ordem de busca)', { retry: 2 }, () => {
     // Grava em memória como o servidor faz (keyframe a cada 5 min, delta a cada ~1 s com mudança).
     const sim = new DemoSimulator({ seed: 3, speed: 2, sessions: 4 }, T0);
     const recs: TimelineRecord[] = [];

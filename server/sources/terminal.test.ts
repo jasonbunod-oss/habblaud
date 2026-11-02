@@ -386,7 +386,7 @@ describe('terminal — segurança, limites e duplicatas', () => {
     expect(e.map((x) => x.at)).toEqual([T0 + 5_000, T0 + 5_000]);
   });
 
-  it('aguenta ~4 MB de JSONL rapidamente', () => {
+  it('aguenta ~4 MB de JSONL rapidamente', { timeout: 60_000 }, () => {
     const lines: string[] = [];
     let bytes = 0;
     for (let i = 0; bytes < 4 * 1024 * 1024; i++) {

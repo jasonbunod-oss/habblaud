@@ -260,7 +260,7 @@ describe('docker-compose.yml', () => {
 
   it('o container acha o host em host.docker.internal (servidor do mundo local, também no Linux)', () => {
     const compose = readFileSync(join(import.meta.dirname, '..', '..', 'docker-compose.yml'), 'utf8');
-    expect(compose).toMatch(/^ {4}extra_hosts:\n {6}- "host\.docker\.internal:host-gateway"$/m);
+    expect(compose).toMatch(/^ {4}extra_hosts:\r?\n {6}- "host\.docker\.internal:host-gateway"$/m);
   });
 });
 

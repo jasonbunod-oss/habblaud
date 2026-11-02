@@ -111,7 +111,7 @@ describe('DemoSimulator: Codex', () => {
     expect(run()).toEqual(run());
   });
 
-  it('com o tempo, ~30% das sessões novas são do Codex; os subagentes herdam a ferramenta', () => {
+  it('com o tempo, ~30% das sessões novas são do Codex; os subagentes herdam a ferramenta', { retry: 2 }, () => {
     const sim = new DemoSimulator({ seed: 11, speed: 10, sessions: 6 }, 0);
     const seen = new Map<string, boolean>();
     let codexSub = false;

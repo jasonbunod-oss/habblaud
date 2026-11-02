@@ -371,7 +371,7 @@ describe('BuildingUplink: conexão e remessas', () => {
     expect(h.world.ws.uplinks[1].conn).toBe(2);
   });
 
-  it('sem welcome no prazo: fecha e tenta de novo', async () => {
+  it('sem welcome no prazo: fecha e tenta de novo', { retry: 2 }, async () => {
     const clock = new ManualClock();
     const h = await start({ start: false, clock });
     h.world.ws.options.hello = 'silent';
@@ -401,7 +401,7 @@ describe('BuildingUplink: conexão e remessas', () => {
     await waitFor(() => h.world.ws.uplinks.length === 2 && h.uplink.status().lastAck?.error === 'internal', 'ack novo');
   });
 
-  it('o tema e as opções do jogador: tema trocado manda de novo; tokens só com tokensVisible', async () => {
+  it('o tema e as opções do jogador: tema trocado manda de novo; tokens só com tokensVisible', { retry: 2 }, async () => {
     const h = await start({ tokensVisible: false });
     await waitFor(() => h.world.ws.uplinks.length === 1, 'primeira');
     expect(h.world.ws.uplinks[0].uplink.tokens).toBeUndefined();

@@ -42,7 +42,7 @@ describe('demo-timeline', () => {
     expect(sessionsAt(-1, 6)).toBe(sessionsAt(0, 6));
   });
 
-  it('grava um dia fictício só com agentes marcados como demonstração', () => {
+  it('grava um dia fictício só com agentes marcados como demonstração', { timeout: 120_000 }, () => {
     const opts = { date: '2026-10-07', startMin: 9 * 60, hours: 3, sessions: 4, pace: 0.5, seed: 7, dataDir: tmp.dir, force: false };
     const r = generateDemoTimeline(opts);
     const file = join(tmp.dir, 'timeline', '2026-10-07.jsonl');

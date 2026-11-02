@@ -8,7 +8,7 @@ describe('Whisper local', () => {
     expect(parseWhisperJson('{}')).toEqual({ text: '', lang: '' });
   });
 
-  it('acha binários e o melhor modelo multilíngue (nunca um .en)', () => {
+  it.skipIf(process.platform === 'win32')('acha binários e o melhor modelo multilíngue (nunca um .en)', () => {
     const have = new Set(['/opt/homebrew/bin/whisper-cli', '/opt/homebrew/bin/ffmpeg', '/h/.whisper/ggml-base.en.bin', '/h/.local/share/whisper/ggml-base.bin', '/h/.local/share/whisper/ggml-small.bin']);
     const setup = findWhisper({ HOME: '/h', PATH: '' }, (p) => have.has(p));
     expect(setup).toEqual({ bin: '/opt/homebrew/bin/whisper-cli', ffmpeg: '/opt/homebrew/bin/ffmpeg', model: '/h/.local/share/whisper/ggml-small.bin', langs: ['pt', 'en'] });

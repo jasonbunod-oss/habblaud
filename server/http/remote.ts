@@ -24,7 +24,8 @@ import http, { type IncomingMessage, type ServerResponse } from 'node:http';
 import https from 'node:https';
 import net from 'node:net';
 import { homedir } from 'node:os';
-import { dirname, join } from 'node:path';
+import { dirname } from 'node:path';
+import { posix as pathPosix } from 'node:path';
 import { parsePasswordHash, verifyPassword, type PasswordHash } from '../remote/password';
 import { hostAllowed } from './guard';
 import { getLocale, tr } from '../../shared/i18n';
@@ -64,7 +65,7 @@ function truthy(v: string | undefined): boolean {
 
 export function defaultTlsDir(env: NodeJS.ProcessEnv, inDocker: boolean): string {
   if (env.HABBLAUD_REMOTE_TLS_DIR?.trim()) return env.HABBLAUD_REMOTE_TLS_DIR.trim();
-  return inDocker ? '/remote-tls' : join(env.HOME || homedir(), '.habblaud', 'remote-tls', 'server');
+  return inDocker ? '/remote-tls' : pathPosix.join(env.HOME || homedir(), '.habblaud', 'remote-tls', 'server');
 }
 
 /** Liga o acesso remoto a partir do ambiente. `warning` explica por que ficou desligado quando parece intencional. */
@@ -82,7 +83,7 @@ export function parseRemoteConfig(
   const passwordHash = parsePasswordHash(hashText);
   if (!passwordHash) return { warning: tr('acesso remoto desligado: HABBLAUD_REMOTE_PASSWORD_HASH inválido; rode npm run remote:setup') };
   const dir = defaultTlsDir(env, inDocker);
-  const tls: RemoteTls = { dir, keyFile: join(dir, 'server.key'), certFile: join(dir, 'server.crt'), caFile: join(dir, 'ca.crt') };
+  const tls: RemoteTls = { dir, keyFile: pathPosix.join(dir, 'server.key'), certFile: pathPosix.join(dir, 'server.crt'), caFile: pathPosix.join(dir, 'ca.crt') };
   const hasTls = exists(tls.keyFile) && exists(tls.certFile);
   const insecure = truthy(env.HABBLAUD_REMOTE_INSECURE_HTTP);
   if (!hasTls && !insecure) return { warning: tr('acesso remoto desligado: sem certificado em {0} (HTTPS é obrigatório); rode npm run remote:setup', [dir]) };
